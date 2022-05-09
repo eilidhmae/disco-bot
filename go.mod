@@ -1,4 +1,4 @@
-module discord-bot
+module disco-bot
 
 go 1.17
 

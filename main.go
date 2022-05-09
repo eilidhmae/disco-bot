@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"discord-bot/controller"
+	"disco-bot/controller"
 )
 
 func main() {
