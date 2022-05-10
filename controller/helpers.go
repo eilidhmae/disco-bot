@@ -8,6 +8,8 @@ import (
 	"regexp"
 )
 
+var sheSaidRegex string = `^it['s]* so (big|hard|huge).*$`
+
 func BotToken(tokenFile string) (string, error) {
 	data, err := os.ReadFile(tokenFile)
 	if err != nil {
@@ -33,21 +35,18 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func defaultContentHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-	c := []byte(strings.TrimSpace(strings.ToLower(m.Content)))
-	cuddleMatched, err := regexp.Match(`^cuddle me$`, c)
-	if err != nil {
-		fmt.Errorf("%s", err)
-	}
-	sheSaidMatched, err := regexp.Match(`^it['s]* so (big|hard|huge).*$`, c)
-	if err != nil {
-		fmt.Errorf("%s", err)
-	}
+	c := strings.TrimSpace(strings.ToLower(m.Content))
 	switch {
-	case sheSaidMatched:
-		s.ChannelMessageSend(m.ChannelID, "That's what she said!")
-	case cuddleMatched:
+	case matches(`^cuddle me$`, c):
 		s.ChannelMessageSend(m.ChannelID, "aww, cuddles for you.")
+	case matches(sheSaidRegex, c):
+		s.ChannelMessageSend(m.ChannelID, "That's what she said!")
 	default:
 		return
 	}
+}
+
+func matches(reg, pattern string) bool {
+	re := regexp.MustCompile(reg)
+	return re.MatchString(pattern)
 }
