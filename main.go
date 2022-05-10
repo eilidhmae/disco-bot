@@ -10,12 +10,11 @@ import (
 )
 
 func main() {
-	token, err := controller.FetchToken()
+	token, err := controller.BotToken(".discord.token")
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("using token: %s", token)
-	dis, err := discordgo.New("Bot " + token)
+	dis, err := discordgo.New(token)
 	if err != nil {
 		log.Fatal(err)
 	}

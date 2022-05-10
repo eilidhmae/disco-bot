@@ -4,14 +4,16 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"os"
 	"strings"
+	"fmt"
+	"regexp"
 )
 
-func FetchToken() (string, error) {
-	data, err := os.ReadFile(".discord.token")
+func BotToken(tokenFile string) (string, error) {
+	data, err := os.ReadFile(tokenFile)
 	if err != nil {
 		return "", err
 	}
-	return strings.TrimSpace(string(data)), nil
+	return fmt.Sprintf("Bot %s", strings.TrimSpace(string(data))), nil
 }
 
 func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -25,7 +27,25 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, "Pong!")
 	case "pong":
 		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	case "cuddle me":
+	default:
+		defaultContentHandler(s, m)
+	}
+}
+
+func defaultContentHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
+	c := []byte(strings.TrimSpace(strings.ToLower(m.Content)))
+	cuddleMatched, err := regexp.Match(`^cuddle me$`, c)
+	if err != nil {
+		fmt.Errorf("%s", err)
+	}
+	sheSaidMatched, err := regexp.Match(`^it['s]* so (big|hard|huge).*$`, c)
+	if err != nil {
+		fmt.Errorf("%s", err)
+	}
+	switch {
+	case sheSaidMatched:
+		s.ChannelMessageSend(m.ChannelID, "That's what she said!")
+	case cuddleMatched:
 		s.ChannelMessageSend(m.ChannelID, "aww, cuddles for you.")
 	default:
 		return
