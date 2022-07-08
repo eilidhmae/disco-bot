@@ -13,7 +13,29 @@ func TestBotToken(t *testing.T) {
 	}
 }
 
+func mustPass(regex string, patterns []string) (string, bool) {
+	for _, pat := range patterns {
+		if matches(regex, pat) != true {
+			return pat, false
+		}
+	}
+	return "", true
+}
+
+func mustFail(regex string, patterns []string) (string, bool) {
+	for _, pat := range patterns {
+		if matches(regex, pat) != false {
+			return pat, false
+		}
+	}
+	return "", true
+}
+
 func TestMatches(t *testing.T) {
+	var resp string
+	var ok bool
+
+	// test sheSaidRegex
 	sheSaidPass := []string{
 		"its so big",
 		"it's so hard!",
@@ -25,15 +47,12 @@ func TestMatches(t *testing.T) {
 		"it's not hard",
 		"deadbeef",
 	}
-
-	for _, pattern := range sheSaidPass {
-		if matches(sheSaidRegex, pattern) != true {
-			t.Errorf("TestMatch Pass mismatch: %s, %s", sheSaidRegex, pattern)
-		}
+	resp, ok = mustPass(sheSaidRegex, sheSaidPass)
+	if !ok {
+		t.Errorf("sheSaidPass mismatch: %s", resp)
 	}
-	for _, pattern := range sheSaidFail {
-		if matches(sheSaidRegex, pattern) != false {
-			t.Errorf("TestMatch Fail mismatch: %s, %s", sheSaidRegex, pattern)
-		}
+	resp, ok = mustFail(sheSaidRegex, sheSaidFail)
+	if !ok {
+		t.Errorf("sheSaidFail mismatch: %s", resp)
 	}
 }
